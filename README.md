@@ -1,2 +1,2 @@
-# safe-network-signature-accumulator
-A Generic BLS Signature Accumulator for SAFE Network
+# SAFE Network Signature Aggregator
+A Generic BLS Signature Aggregator for SAFE Network
