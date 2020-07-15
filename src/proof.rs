@@ -74,9 +74,8 @@ impl Debug for ProofShare {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Proof, ProofShare};
-    use rand::thread_rng;
-    use threshold_crypto::{SecretKey, SecretKeySet};
+    use crate::{Proof};
+    use threshold_crypto::{SecretKey};
 
     #[test]
     fn verify_proof() {
