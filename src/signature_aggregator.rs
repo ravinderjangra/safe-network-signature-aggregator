@@ -251,6 +251,7 @@ impl<T> State<T> {
 mod tests {
     use super::*;
     use rand::thread_rng;
+    use std::thread::sleep;
 
     #[test]
     fn smoke() {
@@ -258,12 +259,13 @@ mod tests {
         let threshold = 3;
         let sk_set = bls::SecretKeySet::random(threshold, &mut rng);
 
-        let mut accumulator = SignatureAggregator::new();
+        let mut accumulator = SignatureAggregator::default();
         let payload = "hello".to_string();
 
         // Not enough shares yet
         for index in 0..threshold {
             let proof_share = create_proof_share(&sk_set, index, &payload);
+            println!("{:?}", proof_share);
             let result = accumulator.add(payload.clone(), proof_share);
 
             match result {
@@ -320,16 +322,13 @@ mod tests {
         assert!(proof.verify(&bincode::serialize(&accumulated_payload).unwrap()))
     }
 
-    #[cfg(feature = "mock_timer")]
     #[test]
     fn expiration() {
-        use fake_clock::FakeClock;
-
         let mut rng = thread_rng();
         let threshold = 3;
         let sk_set = bls::SecretKeySet::random(threshold, &mut rng);
 
-        let mut accumulator = SignatureAggregator::new();
+        let mut accumulator = SignatureAggregator::with_expiration(Duration::from_secs(3));
         let payload = "hello".to_string();
 
         for index in 0..threshold {
@@ -337,7 +336,7 @@ mod tests {
             let _ = accumulator.add(payload.clone(), proof_share);
         }
 
-        FakeClock::advance_time(DEFAULT_EXPIRATION.as_secs() * 1000 + 1);
+        sleep(Duration::from_secs(5));
 
         // Adding another share does nothing now, because the previous shares expired.
         let proof_share = create_proof_share(&sk_set, threshold, &payload);
@@ -355,12 +354,12 @@ mod tests {
         payload: &T,
     ) -> ProofShare {
         let sk_share = sk_set.secret_key_share(index);
-        let signature_share = sk_share.sign(&bincode::serialize(&payload).unwrap());
 
-        ProofShare {
-            public_key_set: sk_set.public_keys(),
+        ProofShare::new(
+            sk_set.public_keys(),
             index,
-            signature_share,
-        }
+            &sk_share,
+            &bincode::serialize(&payload).unwrap(),
+        )
     }
 }

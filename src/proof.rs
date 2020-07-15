@@ -71,3 +71,23 @@ impl Debug for ProofShare {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{Proof, ProofShare};
+    use rand::thread_rng;
+    use threshold_crypto::{SecretKey, SecretKeySet};
+
+    #[test]
+    fn verify_proof() {
+        let sk = SecretKey::random();
+        let public_key = sk.public_key();
+        let data = "hello".to_string();
+        let signature = sk.sign(&data);
+        let proof = Proof {
+            public_key,
+            signature,
+        };
+        assert!(proof.verify(&data.as_bytes()));
+    }
+}
