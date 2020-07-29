@@ -16,9 +16,9 @@ bincode = "1.2.1"
 err-derive = "~0.2.4"
 fake_clock = "~0.3.0"
 log = "~0.4.8"
-rand = "~0.6.5"
+rand = "~0.7.3"
 serde = { version = "1.0.111", features = ["derive" ,"rc"] }
-threshold_crypto = "~0.3.2"
+threshold_crypto = "~0.4.0"
 tiny-keccak = { version = "2.0.2", features = ["sha3"] }
 
 [features]
